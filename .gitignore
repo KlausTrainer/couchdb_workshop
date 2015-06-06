@@ -1,0 +1,6 @@
+/feeds_app/node_modules
+/feeds_app/bower_components
+
+.DS_Store
+Thumbs.db
+npm-debug.log

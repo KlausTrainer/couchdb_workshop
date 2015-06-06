@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<!--
+  Google HTML5 slide template
+
+  Authors: Luke Mahé (code)
+           Marcin Wichary (code and design)
+
+           Dominic Mazzoni (browser compatibility)
+           Charles Chen (ChromeVox support)
+
+  URL: http://code.google.com/p/html5slides/
+-->
+<html>
+  <head>
+    <title>CouchDB - a relaxed Introduction</title>
+    <meta charset='utf-8'>
+    <!-- external - preferred!
+    <script src='http://html5slides.googlecode.com/svn/trunk/slides.js'></script>
+    -->
+
+    <!-- locally -->
+    <script src='javascripts/slides.js'></script>
+    <script src='javascripts/prettify.js'></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/styles.css">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/styles_additional.css">
+  </head>
+  <body style='display: none'>
+    <section class='slides layout-regular'>
+      <article class='biglogo'>
+        <p>couchdb.apache.org says ...</p>
+        <img src="images/www-couchdb-de.png" />
+        <p>... let's see!</p>
+      </article>
+
+      <article>
+
+        <p>
+          June 13, 2015 - OpenTechSchool Dortmund
+        </p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <h3>
+          Introduction to CouchDB
+        </h3>
+      </article>
+
+      <article>
+        <h3>
+          What you will hear ...
+        </h3>
+        <ul>
+          <li>NoSQL database overview</li>
+          <li>What is CouchDB?</li>
+          <li>Querying CouchDB with http</li>
+          <li>Futon</li>
+          <li>Retrieving data with Map/Reduce</li>
+        </ul>
+      </article>
+
+      <article class="citation">
+        <q>
+          <span class="red">
+            CouchDB is built <strong><i>of</i></strong> the Web
+          </span>
+        </q>
+        <div class="author">
+          commonly used phrase
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          NoSQL database overview
+        </h3>
+        <h4>please see ...</h4>
+        <p>
+          <a href="http://kkovacs.eu/cassandra-vs-mongodb-vs-couchdb-vs-redis/">http://kkovacs.eu/cassandra-vs-mongodb-vs-couchdb-vs-redis/</a></p>
+        </p>
+        <h4>document based databases are ...</h4>
+        <p>
+          <b class="red">CouchDB</b>, MongoDB, Terrastore, ThruDB, RavenDB, Riak, SisoDB, Amazon SimpleDB
+        </p>
+      </article>
+
+      <article>
+        <h3>
+          Overview
+        </h3>
+        <table>
+          <tr>
+            <td></td>
+            <td><b>Language</b></td>
+            <td><b>Access</b></td>
+            <td><b>designed for</b></td>
+          </tr>
+          <tr>
+            <td><b>CouchDB</b></td>
+            <td>Erlang</td>
+            <td>HTTP / REST</td>
+            <td>consistency, ease of use</td>
+          </tr>
+          <tr>
+            <td><b>Cassandra</b></td>
+            <td>Java</td>
+            <td>driver, thrift</td>
+            <td>Best of BigTable and Dynamo</td>
+          </tr>
+          <tr>
+            <td><b>MongoDB</b></td>
+            <td>C++</td>
+            <td>driver</td>
+            <td>good parts of SQL</td>
+          </tr>
+          <tr>
+            <td><b>Neo4J</b></td>
+            <td>Java</td>
+            <td>REST / embedded</td>
+            <td>relations, search</td>
+          </tr>
+          <tr>
+            <td><b>riak</b></td>
+            <td>Erlang</td>
+            <td>REST / driver</td>
+            <td>Fault tolerance, tunable</td>
+          </tr>
+          <tr>
+            <td><b>redis</b></td>
+            <td>C</td>
+            <td>driver / TCP</td>
+            <td>speed</td>
+          </tr>
+        </table>
+      </article>
+
+      <article>
+        <h3>
+          What is CouchDB - technically?
+        </h3>
+        <ul>
+          <li>schemaless, document based database</li>
+          <li>JSON format for data (besides attachments, RFC 4627)</li>
+          <li>RESTful HTTP API: GET, POST, PUT, DELETE, HEAD, COPY (RFC 2616)</li>
+          <li>B+tree index for data indexing</li>
+          <li>replication with bi-directional conflict detection and resolution</li>
+          <li>data integrity with MVCC and ACID</li>
+          <li>BLOBS saved as attachment directly in document</li>
+          <li>written in Erlang</li>
+          <li>OpenSource project with Apache2 license</li>
+        </ul>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          What is CouchDB? MVCC and ACID
+        </h3>
+        <p>MVCC - <b>M</b>ulti <b>V</b>ersion <b>C</b>oncurrency <b>C</b>ontrol</p>
+        <br />
+        <div style="text-align: center">
+          <img src="images/mvcc.png" />
+        </div>
+        <p>ACID</p>
+        <ul>
+          <li>Atomicity - all or nothing during parallel changes<li>
+          <li>Consitency - database is always consistent</li>
+          <li>Isolation - no impact between write or delete operations</li>
+          <li>Durability - changes in the DB are permanent</li>
+        </ul>
+      </article>
+
+
+      <article class="smaller">
+        <h3>
+          What is CouchDB? CAP
+        </h3>
+        <p>CAP Theorem by Dr. Eric Brewer - approved by Seth Gilbert and Nancy Lynch</p>
+        <ul>
+          <li><b>C</b>onsistency, <b>A</b>vailability, <b>P</b>artition Tolerance<li>
+          <li>only two properties can be guaranteed in distributed systems</li>
+        </ul>
+        <p>In CouchDB when used as distributed system: AP</p>
+        <ul>
+          <li><b>C</b>: eventual consistent - editing the same doc on two nodes will eventually be consistent (after replication)</li>
+          <li><b>A</b>: possible with master-slave replication</li>
+          <li><b>P</b>: not relevant for CouchDB when used as single node (no cluster facilities available - but projects like BigCouch, CouchDB-Lounge)</li>
+        </ul>
+        <br />
+        <a href="http://www.eecs.berkeley.edu/~brewer/cs262b-2004/PODC-keynote.pdf">Towards Robust Distributed Systems</a><br />
+        <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.20.1495&rep=rep1&type=pdf">Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-tolerant Web Services</a><br />
+      </article>
+
+      <article class="smaller">
+        <h3>
+          What is CouchDB? CAP
+        </h3>
+        <br />
+        <div style="text-align: center">
+          <img src="images/noSQL_comparison.png" />
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - db level
+        </h3>
+        <p>Hello CouchDB:</p>
+        <section>
+          <pre>
+curl -X GET http://localhost:5984
+{"couchdb":"Welcome","uuid":"560d70bf76c74114fac7da97372ff88c","version":"1.6.1", <br>"vendor":{"version":"1.6.1-1","name":"Homebrew"}}
+          </pre>
+        </section>
+        <p>All DB's</p>
+        <section>
+          <pre>
+curl -X GET http://localhost:5984/_all_dbs
+["_replicator","_users"]
+          </pre>
+        </section>
+        <p>Create a DB</p>
+        <section>
+          <pre>
+curl -X PUT http://localhost:5984/ots
+{"ok":true}
+curl -X GET http://localhost:5984/_all_dbs
+["_replicator","_users","ots"]
+          </pre>
+        </section>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Creating a document with POST</p>
+        <section>
+          <pre>
+curl -X POST http://localhost:5984/jug/ -H "Content-Type: application/json" -d '{}'
+{"ok":true,<br />&nbsp;"id":"9b56eaaca042487bf33c72b2f700094d",<br />&nbsp;"rev":"1-967a00dff5e02add41819138abb3284d"}
+          </pre>
+        </section>
+        <p>id</p>
+        <div class="text indent10">
+          uuid #provided by CouchDB
+        </div>
+        <p>rev</p>
+        <div class="text indent10">
+          (revision number)-(md5 hash of the document content)
+        </div>
+        <p>Annotation</p>
+        <div class="text indent10">
+          # using POST to create a document requires the Content-Type header<br />
+          # the document _id will be created by CouchDB
+        </div>
+      </article>
+
+      <article class='smaller'>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+        <p>Creating a document with PUT with usage of a uuid ...</p>
+        <section>
+          <pre>
+curl -X GET http://localhost:5984/_uuids
+{"uuids":["9b56eaaca042487bf33c72b2f7001004"]}
+curl -X PUT http://localhost:5984/ots/9b56eaaca042487bf33c72b2f7001004 -d '{}'
+{"ok":true,<br />&nbsp;"id":"9b56eaaca042487bf33c72b2f7001004",<br />&nbsp;"rev":"1-967a00dff5e02add41819138abb3284d"}
+          </pre>
+        </section>
+        <p>... or with a own id</p>
+        <section>
+          <pre>
+curl -X PUT http://localhost:5984/ots/first_doc -d '{}'
+{"ok":true,"id":"first_doc","rev":"1-967a00dff5e02add41819138abb3284d"}
+          </pre>
+        </section>
+        <p>Annotation</p>
+        <div class="text indent10">
+          # using PUT to create a document requires to provide the document _id
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Updating a document with PUT</p>
+        <section>
+          <pre>
+curl -X PUT http://localhost:5984/ots/first_doc
+-d '{"_rev":"<b>1</b>-967a00dff5e02add41819138abb3284d",
+     "some-content":"Hey how are you dude?"}'
+{"ok":true,"id":"first_doc","rev":"<b>2</b>-65ef50076c98c6817fb3ca97c87d8b66"}
+          </pre>
+        </section>
+        <p>possible to use the if-match header</p>
+        <section>
+          <pre>
+url -X PUT http://localhost:5984/ots/first_doc
+-H "if-match:<b>2</b>-65ef50076c98c6817fb3ca97c87d8b66"
+-d '{"some-content":"Hey how are you agin dude?"}'
+{"ok":true,"id":"first_doc","rev":"<b>3</b>-a42ad7d14fdd29374bd3f285c4ea6d9f"}
+          </pre>
+        </section>
+        <p>Annotation</p>
+        <div class="text indent10">
+          # when updating a document, the most actual _rev of the document has to be provided
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Difference between <b>POST</b> and <b>PUT</b></p>
+
+        <ul>
+          <li><b>both</b> methods are creating new documents</li>
+          <li>the difference is the meaning of the request-uri</li>
+          <li>"the URI in a POST request identifies the resource that will handle the enclosed entity" means: CouchDB (the resource) creates the document all by itself</li>
+          <li>"the URI in a PUT request identifies the entity enclosed with the request" means: CouchDB creates a document with the given document id</li>
+          <li>both methods create the document with the given request-body</li>
+          <li>modifying a document is only possible with PUT</li>
+        </ul>
+        <p>&nbsp;</p>
+        <p>Annotation</p>
+        <div class="text indent10">
+          read <a href="http://pretty-rfc.herokuapp.com/RFC2616#POST">POST</a> and the following <a href="http://pretty-rfc.herokuapp.com/RFC2616#PUT">PUT</a> paragraph from <a href="http://pretty-rfc.herokuapp.com/RFC2616">RFC2616</a>
+        </div>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Deleting a document with DELETE</p>
+        <br>
+        <section>
+          <p>create second_doc</p>
+          <pre>
+curl -X PUT http://localhost:5984/ots/second_doc -d '{}'
+{"ok":true,"id":"second_doc","rev":"1-967a00dff5e02add41819138abb3284d"}
+          </pre>
+          <p>and delete it</p>
+          <pre>
+curl -X DELETE http://localhost:5984/ots/second_doc?rev=1-967a00dff5e02add41819138abb3284d
+{"ok":true,"id":"second_doc","rev":"2-eec205a9d413992850a6e32678485900"}
+          </pre>
+        </section>
+        <p>possible to use the if-match header</p>
+        <section>
+          <pre>
+-H "if-match:1-967a00dff5e02add41819138abb3284d"
+          </pre>
+        </section>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>The document is not deleted physically but has a key <i>_deleted: true</i></p>
+
+        <section>
+          <pre>
+curl -X GET http://localhost:5984/jug/second_doc
+{"error":"not_found","reason":"deleted"}
+          </pre>
+        </section>
+
+        <p>Please read the very important section about deleted documents in <a href="http://docs.couchdb.org/en/1.6.1/api/document/common.html?highlight=deleted#delete--db-docid">The CouchDB Documentation</a>
+        <p>You can retrieve a deleted document with this:</p>
+        <section>
+          <pre>
+curl -X GET http://localhost:5984/ots/second_doc<br>?rev=2-eec205a9d413992850a6e32678485900
+{"_id":"second_doc","_rev":"2-eec205a9d413992850a6e32678485900",<b>"_deleted":true</b>}
+          </pre>
+
+        </section>
+        <p>More info can also be found in the <a href="http://docs.couchdb.org/en/1.6.1/api/document/common.html?highlight=deleted#retrieving-deleted-documents">CouchDB Documentation</a></p>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Add attachment to document</p>
+        <section>
+          <pre>
+curl -X PUT http://localhost:5984/ots/third_doc -d '{}'
+{"ok":true,"id":"third_doc","rev":"1-967a00dff5e02add41819138abb3284d"}
+
+curl -X PUT http://localhost:5984/ots/third_doc/mvcc.png<br>?rev=1-967a00dff5e02add41819138abb3284d
+ --data-binary @mvcc.png
+ -H "Content-Type: image/png"
+{"ok":true,"id":"third_doc","rev":"2-7e10662ef82e548bafd9bc078430669a"}
+          </pre>
+        </section>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+        <p>Receive attachment from document</p>
+        <section>
+          <pre>
+curl -i http://localhost:5984/ots/third_doc/
+
+HTTP/1.1 200 OK
+Server: CouchDB/1.6.1 (Erlang OTP/17)
+ETag: "2-7e10662ef82e548bafd9bc078430669a"
+Date: Wed, 10 Jun 2015 19:55:32 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 199
+Cache-Control: must-revalidate
+
+{"_id":"third_doc","_rev":"2-7e10662ef82e548bafd9bc078430669a",
+"_attachments":
+ {"mvcc.png":<br>
+  {"content_type":"image/png",
+   "revpos":2,
+   "digest":"md5-RJsN7gjQubg+iqLe96+SxQ==",
+   "length":12753,
+   "stub":true
+  }
+ }
+}
+          </pre>
+        </section>
+        <p>Im Browser: <a href="http://localhost:5984/ots/third_doc/mvcc.png" target="_blank">http://localhost:5984/ots/third_doc/mvcc.png</a></p>
+      </article>
+
+      <article class='smaller'>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+
+        <p>Copy the documents</p>
+        <br>
+        <section>
+          <p>Create two documents</p>
+          <pre>
+curl -i -X PUT http://localhost:5984/ots/fourth_doc -d '{"first_name": "Andy"}'
+{"ok":true,"id":"fourth_doc","rev":"1-16e80e6f62d44c4569d13e2e7a05e373"}
+
+curl -X PUT http://localhost:5984/ots/fifth_doc -d '{"last_name": "Wenk"}'
+{"ok":true,"id":"fifth_doc","rev":"1-18236196ad905238b2b24d33a12eb043"}
+          </pre>
+        </section>
+      </article>
+
+       <article class='smaller'>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+          <p>Copying fourth_doc to fifth_doc is overwriting not merging!</p>
+          <section>
+          <pre>
+curl -X COPY http://localhost:5984/ots/fourth_doc
+-H 'destination:fifth_doc?rev=1-18236196ad905238b2b24d33a12eb043'
+{"ok":true,"id":"fifth_doc","rev":"2-21431c6bda57d30383987ae2510c309e"}
+
+curl http:://localhost:5984/ots/fifth_doc
+{"_id":"fifth_doc","_rev":"2-21431c6bda57d30383987ae2510c309e","first_name":"Andy"}
+          </pre>
+          </section>
+        </article>
+
+        <article class='smaller'>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+          <p>Copying fourth_doc to sixth_doc will create the fixh_doc newly</p>
+          <section>
+          <pre>
+curl -X COPY http://localhost:5984/ots/fourth_doc -H 'destination:sixth_doc'
+{"ok":true,"id":"sixth_doc","rev":"1-993591377f6cb544ddea933a6ed28e38"}
+
+curl http://localhost:5984/ots/sixth_doc
+{"_id":"sixth_doc","_rev":"1-993591377f6cb544ddea933a6ed28e38","first_name":"Andy"}
+          </pre>
+        </section>
+
+      </article>
+
+ <article class='smaller'>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+        <p>Get all documents</p>
+        <section>
+          <pre>
+curl -X GET http://localhost:5984/ots/_all_docs
+{"total_rows":11,"offset":0,"rows":[
+{"id":"7890ea3e62d9d5c35e395670a9001738","key":"7890ea3e62d9d5c35e395670a9001738","value":{"rev":"2-3899b298da77f4c44d7c57cee30628b9"}},
+{"id":"7890ea3e62d9d5c35e395670a9001b04","key":"7890ea3e62d9d5c35e395670a9001b04","value":{"rev":"1-1ad9f7e7c5f932d670a24a01400d12b7"}},
+{"id":"9b56eaaca042487bf33c72b2f700094d","key":"9b56eaaca042487bf33c72b2f700094d","value":{"rev":"1-967a00dff5e02add41819138abb3284d"}},
+{"id":"9b56eaaca042487bf33c72b2f7001004","key":"9b56eaaca042487bf33c72b2f7001004","value":{"rev":"1-967a00dff5e02add41819138abb3284d"}},
+{"id":"_design/ots","key":"_design/ots","value":{"rev":"8-2fa6a96e7687f1fd747d3562eb20f658"}},
+{"id":"fifth_doc","key":"fifth_doc","value":{"rev":"2-21431c6bda57d30383987ae2510c309e"}},
+{"id":"first_doc","key":"first_doc","value":{"rev":"3-a42ad7d14fdd29374bd3f285c4ea6d9f"}},
+{"id":"fourth_doc","key":"fourth_doc","value":{"rev":"2-7945e901ae6b9d19a2cf4b0da40a1a5c"}},
+{"id":"second_doc","key":"second_doc","value":{"rev":"3-bc27b6930ca514527d8954c7c43e6a09"}},
+{"id":"sixth_doc","key":"sixth_doc","value":{"rev":"1-993591377f6cb544ddea933a6ed28e38"}},
+{"id":"third_doc","key":"third_doc","value":{"rev":"2-7e10662ef82e548bafd9bc078430669a"}}
+]}
+          </pre>
+        </section>
+      </article>
+
+      <article>
+        <h3>
+          Querying CouchDB with http - document level
+        </h3>
+        <p>Check also:</p>
+        <ul>
+          <li>_bulk_docs</li>
+          <li>_purge</li>
+          <li><a href="https://github.com/andywenk/couchdb-cheat-sheet">couchdb-cheat-sheet</a></li>
+          <li><a href="http://wiki.apache.org/couchdb/Reference">http://wiki.apache.org/couchdb/Reference</a></li>
+        </ul>
+      </article>
+
+      <article class='fill'>
+        <iframe src='http://localhost:5984/_utils'></iframe>
+      </article>
+
+      <article>
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <p>Invented by Google</p>
+        <ul>
+          <li>parallel and concurrent calculation of very big data sets<li>
+          <li>in CouchDB used to create Views</li>
+          <li>Map calculates each document</li>
+          <li>Reduce calculates a summation out of the Map results</li>
+        </ul>
+        <br />
+        <a href="http://en.wikipedia.org/wiki/MapReduce">Wiki: MapReduce</a><br />
+        <a href="http://userpages.uni-koblenz.de/~laemmel/MapReduce/paper.pdf">Google’s MapReduce Programming Model — Revisited</a>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <p>some documents with structure</p>
+        <section>
+          <pre>
+{
+   "_id": "f165fc62ed5d14ca84128de1d6034a36",
+   "_rev": "1-357fda3050771ca747b95c0108a21fe6",
+   "type": "document_store",
+   "name": "CouchDB"
+}
+          </pre>
+        </section>
+        <p>simplest possible view</p>
+        <section>
+          <pre>
+{
+   "_id": "_design/simple",
+   "_rev": "2-0404067f53ecc72bc660b8bed7576604",
+   "views": {
+       "all_database_types": {
+           "map": "function (doc) { emit(doc.type, doc.name); }"
+       }
+   }
+}
+          </pre>
+        </section>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <p>firing the view</p>
+        <section>
+          <pre>
+curl -X GET 'http://localhost:5984/map-reduce/_design/simple/ \
+  _view/all_database_types'
+{"total_rows":12,"offset":0,"rows":[
+{"id":"f165fc62ed5d14ca84128de1d6036c8c","key":"column_store","value":"BigTable"},
+{"id":"f165fc62ed5d14ca84128de1d60375a4","key":"column_store","value":"Hadoop"},
+{"id":"f165fc62ed5d14ca84128de1d6037f0e","key":"column_store","value":"Cassandra"},
+{"id":"f165fc62ed5d14ca84128de1d6038002","key":"column_store","value":"HBase"},
+{"id":"f165fc62ed5d14ca84128de1d6034a36","key":"document_store","value":"CouchDB"},
+{"id":"f165fc62ed5d14ca84128de1d6035544","key":"document_store","value":"MongoDB"},
+{"id":"f165fc62ed5d14ca84128de1d60358c0","key":"document_store","value":"Riak"},
+{"id":"f165fc62ed5d14ca84128de1d60367ac","key":"document_store","value":"Amazon SimpleDB"},
+{"id":"f165fc62ed5d14ca84128de1d60387fb","key":"key_value","value":"couchbase"},
+{"id":"f165fc62ed5d14ca84128de1d6038f3f","key":"key_value","value":"redis"},
+{"id":"f165fc62ed5d14ca84128de1d6039f11","key":"key_value","value":"berkley DB"},
+{"id":"f165fc62ed5d14ca84128de1d603a8b6","key":"key_value","value":"Raptor DB"}
+]}
+          </pre>
+        </section>
+        <p class="red">attention: start using single quotes for the URL - otherwise cURL will fuck up!</p>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <p>firing the view and receive only data for type=column_store</p>
+        <section>
+          <pre>
+curl -X GET 'http://localhost:5984/map-reduce/_design/simple/ \
+  _view/all_database_types?key="document_store"'
+{"total_rows":12,"offset":4,"rows":[
+{"id":"f165fc62ed5d14ca84128de1d6034a36","key":"document_store","value":"CouchDB"},
+{"id":"f165fc62ed5d14ca84128de1d6035544","key":"document_store","value":"MongoDB"},
+{"id":"f165fc62ed5d14ca84128de1d60358c0","key":"document_store","value":"Riak"},
+{"id":"f165fc62ed5d14ca84128de1d60367ac","key":"document_store","value":"Amazon SimpleDB"}
+]}
+          </pre>
+        </section>
+        <p>
+          See also: <a href="http://wiki.apache.org/couchdb/HTTP_view_API">http://wiki.apache.org/couchdb/HTTP_view_API</a>
+        </p>
+      </article>
+
+      <article class="smaller">
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <p>extending the view with a reduce function</p>
+        <section>
+          <pre>
+{
+   "_id": "_design/simple",
+   "_rev": "2-0404067f53ecc72bc660b8bed7576604",
+   "views": {
+       "all_database_types": {
+           "map": "function (doc) { emit(doc.type, doc.name); }"
+           "reduce": "_count"
+       }
+   }
+}
+          </pre>
+        </section>
+        <section>
+          <pre>
+curl -X GET 'http://localhost:5984/map-reduce/_design/simple/ \
+  _view/all_database_types?group=true'
+{"rows":[
+{"key":"column_store","value":4},
+{"key":"document_store","value":4},
+{"key":"key_value","value":4}
+]}
+          </pre>
+        </section>
+        <p class="green">
+          If you want to fire the view without reduce, use the parameter reduce=false
+      </article>
+
+      <article>
+        <h3>
+          Retrieving data with Map/Reduce
+        </h3>
+        <ul>
+          <li>built-in reduce functions: _sum, _count, _stats</li>
+          <li>_sum and _stats requires value of emit to be numeric</li>
+          <li>you can write reduce functions also by yourself</li>
+          <li>if the  result from reduce is more than one value you are doing it wrong</li>
+          <li>key of emit can be an array - then use group_level parameter to group (<a href="http://localhost:5984/_utils/database.html?map-reduce/_design/simple/_view/last_update">example</a>)</li>
+        </ul>
+        <p>See also:</p>
+        <ul>
+          <li><a href="http://guide.couchdb.org/draft/views.html">Definitive Guide: Finding Your Data with Views</a></li>
+          <li><a href="http://guide.couchdb.org/draft/cookbook.html">Definitive Guide: View Cookbook for SQL Jockeys</a></li>
+          <li><a href="http://shop.oreilly.com/product/0636920018247.do">Writing and Querying MapReduce Views in CouchDB</a></li>
+        </ul>
+      </article>
+
+      <article>
+        <h2 class="red">
+          RELAX!
+        </h2>
+      </article>
+    </section>
+  </body>
+</html>

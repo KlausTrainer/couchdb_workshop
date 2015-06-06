@@ -1,0 +1,14 @@
+{
+    "name": "jug-kanso",
+    "version": "0.0.42",
+    "description": "JUG Ostfalen Kanso App",
+    "attachments": ["index.html", "static"],
+    "modules": ["lib"],
+    "load": "lib/views",
+    "dependencies": {
+        "attachments": null,
+        "modules": null,
+        "properties": null,
+        "db": null
+    }
+}

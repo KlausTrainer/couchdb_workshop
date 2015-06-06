@@ -1,0 +1,26 @@
+[
+    {
+        "first_name": "Andy",
+        "last_name": "Wenk",
+        "city": "Hamburg",
+        "twitter": "@awenkhh",
+        "coding_skills": ["Ruby","Rails","JavaScript","HTML","CSS"],
+        "age": 41
+    },
+    {
+        "first_name": "Uwe",
+        "last_name": "Sauerbrei",
+        "city": "Buchholz",
+        "twitter": "",
+        "coding_skills": ["Java","HTML","CSS"],
+        "age": 46
+    },
+    {
+        "first_name": "Till",
+        "last_name": "Klampaeckel",
+        "city": "Berlin",
+        "twitter": "@klimpong",
+        "coding_skills": ["PHP","JavaScript","HTML","CSS"],
+        "age": 32
+    }
+]

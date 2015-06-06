@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <title>JUG-Kanso App</title>
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/kanso-app.css">
+  </head>
+  <body>
+    <h1>JUG-Kanso App</h1>
+    <div id="attendees"></div>
+
+    <p><a href="" class="js_get_data">Retrieve data from db</a>
+    <div id="data"></div>
+
+    <script type="text/javascript" src="static/javascripts/jquery.js"></script>
+    <script type="text/javascript" src="modules.js"></script>
+    <script type="text/javascript">
+      var jug = require('lib/jug');
+
+      $('document').ready( function () {
+        $('#attendees').html(jug.attendees());
+      });
+
+      jug.get_data();
+    </script>
+  </body>
+</html>

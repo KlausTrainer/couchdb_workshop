@@ -1,0 +1,5 @@
+[
+{"first_name":"Andy","last_name":"Wenk","city":"Hamburg","twitter":"@awenkhh","coding_skills":["Ruby","Rails","JavaScript","HTML","CSS"],"age":41,"_id":"171fd70ba9d8b42b40598f0a6e1f6bf9"},
+{"first_name":"Uwe","last_name":"Sauerbrei","city":"Buchholz","twitter":"","coding_skills":["Java","HTML","CSS"],"age":46,"_id":"171fd70ba9d8b42b40598f0a6e1f6ef3"},
+{"first_name":"Till","last_name":"Klampaeckel","city":"Berlin","twitter":"@klimpong","coding_skills":["PHP","JavaScript","HTML","CSS"],"age":32,"_id":"171fd70ba9d8b42b40598f0a6e1f7843"}
+]

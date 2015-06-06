@@ -1,0 +1,18 @@
+{
+  "name": "feeds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install": "couch-push http://admin:secret@localhost:5984/feeds ./couch",
+    "serve": "npm run server",
+    "server": "http-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "couch-push": "^1.2.1",
+    "http-server": "^0.8.0"
+  }
+}

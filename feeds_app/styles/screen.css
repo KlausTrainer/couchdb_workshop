@@ -1,0 +1,52 @@
+body {
+  background-color: #f3f2fc;
+}
+
+article {
+  max-width: 800px;
+  margin: 32px auto;
+  padding: 32px;
+  background: #fff;
+}
+
+article header {
+  text-align: center;
+}
+
+article header a {
+  text-decoration: none;
+  color: #000;
+}
+
+article header a:hover {
+  color: #00e;
+}
+
+article img {
+  height: auto;
+  width: auto;
+  max-width: 100%;
+  margin: auto;
+  display: block;
+}
+
+article footer .favorite {
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  text-align: right;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+article footer .favorite:hover {
+  color: #00e;
+}
+
+button {
+  background: #fff;
+  border: none;
+  margin: 0 auto;
+  display: inline-block;
+  position: relative;
+}

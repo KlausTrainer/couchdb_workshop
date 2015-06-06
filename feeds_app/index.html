@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Feeds!</title>
+    <link rel="stylesheet" href="vendor/styles/normalize.css" media="screen" title="no title" charset="utf-8">
+    <link rel="stylesheet" href="styles/screen.css" media="screen" title="no title" charset="utf-8">
+  </head>
+  <body>
+    <section class="articles">
+      <script id="article-template" type="text/x-handlebars-template">
+        <header>
+          <h2><a href="{{object.link}}">{{title}}</a></h2>
+        </header>
+        {{{object.summary}}}
+        <footer>
+          <div class="favorite" data-doc-id="{{_id}}">{{object.favorite}}</div>
+        </footer>
+      </script>
+    </section>
+
+    <button class="more-articles">
+      Load more articles
+    </button>
+
+    <script src="vendor/scripts/fetch.js"></script>
+    <script src="vendor/scripts/handlebars.js"></script>
+    <script src="scripts/main.js"></script>
+  </body>
+</html>
