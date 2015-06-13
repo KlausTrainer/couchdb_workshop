@@ -17,5 +17,4 @@ Klaus, Sebastian, Andy
 * Enable CORS in your CouchDB
 * `cd feeds_app`
 * `npm install`
-* `npm run install`
 * `npm run server`
