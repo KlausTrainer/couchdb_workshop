@@ -13,8 +13,9 @@ Klaus, Sebastian, Andy
 
 ## Getting Started
 
-* Run `npm install`
 * Replicate `http://couchplanet.org:5984/feeds`
 * Enable CORS in your CouchDB
+* `cd feeds_app`
+* `npm install`
 * `npm run install`
 * `npm run server`
