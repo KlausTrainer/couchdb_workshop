@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install": "couch-push http://admin:secret@localhost:5984/feeds ./couch",
     "serve": "npm run server",
     "server": "http-server",
     "test": "echo \"Error: no test specified\" && exit 1"
