@@ -11,6 +11,9 @@ const App = function(dbUrl) {
 
   this.fetchRecentArticles()
     .then(this.processArticles.bind(this));
+
+  document.querySelector('.more-articles')
+    .addEventListener('click', this.loadMoreArticles.bind(this));
 };
 
 App.prototype.fetchRecentArticles = function(options) {
@@ -26,9 +29,14 @@ App.prototype.fetchRecentArticles = function(options) {
     options.limit = 8;
   }
 
+  if (typeof options.skip !== 'number') {
+    options.skip = 0;
+  }
+
   const url = this.recentArticlesUrl + '?descending=true&include_docs=true'
                 + '&startkey=' + options.startkey
-                + '&limit=' + options.limit;
+                + '&limit=' + options.limit
+                + '&skip=' + options.skip;
 
   return new Promise(function(resolve, reject) {
     fetch(url).then(function(response) {
@@ -48,6 +56,7 @@ App.prototype.fetchRecentArticles = function(options) {
 
 App.prototype.processArticles = function(articles) {
   this.renderArticles(articles);
+  this.startkey = '"' + articles[articles.length - 1].key + '"';
 };
 
 App.prototype.renderArticles = function(articles) {
@@ -59,6 +68,11 @@ App.prototype.renderArticles = function(articles) {
     articleElement.innerHTML = this.articleTemplate(doc);
     this.articleList.appendChild(articleElement);
   }, this);
+};
+
+App.prototype.loadMoreArticles = function() {
+  this.fetchRecentArticles({skip: 1})
+    .then(this.processArticles.bind(this));
 };
 
 window.app = new App('http://localhost:5984/feeds');
