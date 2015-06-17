@@ -37,3 +37,21 @@ See http://docs.couchdb.org/en/1.6.1/api/ddoc/views.html, and http://docs.couchd
 On the lower right corner of each article, there is a white star, which is supposed to be used as "Favorite"- or "Unfavorite"-button, respectively. It has no functionality attached to it yet, however. When an article has been marked as favorite, a black star should be displayed instead of a white one. It should be possible to revert a favorite, i.e., unmark a favorite article.
 
 See http://docs.couchdb.org/en/1.6.1/api/document/common.html.
+
+## Sample Solutions
+
+### Document Update Validation
+
+See [validate_doc_update](https://github.com/KlausTrainer/couchdb_workshop/tree/validate_doc_update) branch.
+
+### Load More Articles
+
+See [load-more-articles](https://github.com/KlausTrainer/couchdb_workshop/tree/load-more-articles) branch.
+
+### Favorites
+
+See [favorites](https://github.com/KlausTrainer/couchdb_workshop/tree/favorites) branch.
+
+### Favorites (advanced version)
+
+See [advanced-favorites](https://github.com/KlausTrainer/couchdb_workshop/tree/advanced-favorites) branch.
