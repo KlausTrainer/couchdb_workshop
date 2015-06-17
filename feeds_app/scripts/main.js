@@ -4,6 +4,7 @@ const App = function(dbUrl) {
   this.dbUrl = dbUrl;
   this.recentArticlesUrl = dbUrl + '/_design/feeds/_view/recent_articles';
   this.startkey = '"3012-12-12T23%3A59%3A59.999Z"';
+  this.docs = {};
 
   this.articleList = document.querySelector('.articles');
   this.articleTemplate = Handlebars.compile(
@@ -47,6 +48,10 @@ App.prototype.fetchRecentArticles = function(options) {
 };
 
 App.prototype.processArticles = function(articles) {
+  articles.forEach(function(article) {
+    this.docs[article.id] = article.doc;
+  }, this);
+
   this.renderArticles(articles);
 };
 
@@ -59,6 +64,39 @@ App.prototype.renderArticles = function(articles) {
     articleElement.innerHTML = this.articleTemplate(doc);
     this.articleList.appendChild(articleElement);
   }, this);
+
+  this.initFavorites();
+};
+
+App.prototype.initFavorites = function() {
+  const favs = document.querySelectorAll('.favorite');
+
+  for (var i = 0; i < favs.length; i++) {
+    favs[i].addEventListener('click', this.toggleFavorite.bind(this));
+  }
+};
+
+App.prototype.toggleFavorite = function(clickEvent) {
+  const target = clickEvent.target,
+        docId = target.getAttribute('data-doc-id'),
+        doc = this.docs[docId];
+
+  doc.object.favorite = doc.object.favorite === '★' ? '☆' : '★';
+  target.innerHTML = doc.object.favorite;
+
+  fetch(this.dbUrl + '/' + encodeURIComponent(doc._id), {
+    method: 'PUT',
+    body: JSON.stringify(doc),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(function(response) {
+    return response.json();
+  }).then(function(response) {
+    if (response.ok) {
+      doc._rev = response.rev;
+    }
+  });
 };
 
 window.app = new App('http://localhost:5984/feeds');
